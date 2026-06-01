@@ -6,6 +6,8 @@ from app.db.database import get_db
 from app.schemas.user import UserCreate, UserResponse, UserLogin
 
 from app.services.auth_service import create_user, login_user
+from app.core.dependancies import get_current_user 
+from app.models.user import User
 
 router = APIRouter()
 
@@ -29,3 +31,8 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
         return login_user(email=payload.email, password=payload.password, db=db)
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
+
+
+@router.get("/me", response_model=UserResponse)
+def me(current_user: User = Depends(get_current_user)):
+    return current_user
