@@ -1,0 +1,30 @@
+# Virtual environment
+venv/
+ENV/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Python cache and temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Databases (if you use local SQLite for testing)
+*.db
+*.sqlite3
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
