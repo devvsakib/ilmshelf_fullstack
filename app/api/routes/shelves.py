@@ -1,41 +1,34 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
+from app.models.user import User
 from app.models.shelf import Shelf
-from pydantic import BaseModel
+from app.core.dependancies import get_current_user
 from app.models.enums import ShelfTypeEnum
-from app.schemas.shelf import ShelfCreate
-import uuid
+from app.schemas.shelf import ShelfCreate, ShelfResponse
+from app.services.shelf_service import create_shelf, get_my_shelves
 
 router = APIRouter()
 
 
-@router.get("/")
-def get_shelves(db: Session = Depends(get_db)):
-    shelves = db.query(Shelf).all()
-    return {
-        "message": "List of shelves",
-        "shelves": shelves,
-    }
-
-
-@router.post("/")
-def create_shelve(payload: ShelfCreate, db: Session = Depends(get_db)):
-    existing = db.query(Shelf).filter(Shelf.slug == payload.slug).first()
-
-    if existing:
-        return "Shelve with this slug already exists!"
-
-    shelf = Shelf(
-        name=payload.name,
-        slug=payload.slug,
-        type=payload.type,
-        is_public=payload.is_public,
-        created_by=payload.created_by,
+@router.post("", response_model=ShelfResponse)
+def create_new_shelf(
+    payload: ShelfCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return create_shelf(
+        payload,
+        current_user,
+        db,
     )
 
-    db.add(shelf)
-    db.commit()
-    db.refresh(shelf)
 
-    return {"message": "Shelf created", "shelf": shelf}
+@router.get("/my", response_model=list[ShelfResponse])
+def my_shelves(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(
+        get_db,
+    ),
+):
+    return get_my_shelves(current_user, db)
