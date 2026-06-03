@@ -32,3 +32,63 @@ def get_notes(current_user: User, db: Session):
     return (
         db.query(Note).join(UserBook).filter(UserBook.user_id == current_user.id).all()
     )
+
+
+def update_note(
+    note_id,
+    payload: NoteUpdate,
+    current_user: User,
+    db: Session,
+):
+    note = (
+        db.query(Note)
+        .join(UserBook)
+        .filter(
+            Note.id == note_id,
+            UserBook.user_id == current_user.id,
+        )
+        .first()
+    )
+
+    if not note:
+        raise ValueError("Note not found")
+
+    if payload.page is not None:
+        note.page = payload.page
+
+    if payload.content is not None:
+        note.content = payload.content
+
+    if payload.is_public is not None:
+        note.is_public = payload.is_public
+
+    db.commit()
+
+    db.refresh(note)
+
+    return note
+
+
+def delete_note(
+    note_id,
+    current_user: User,
+    db: Session,
+):
+    note = (
+        db.query(Note)
+        .join(UserBook)
+        .filter(
+            Note.id == note_id,
+            UserBook.user_id == current_user.id,
+        )
+        .first()
+    )
+
+    if not note:
+        raise ValueError("Note not found")
+
+    db.delete(note)
+
+    db.commit()
+
+    return True

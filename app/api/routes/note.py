@@ -25,8 +25,8 @@ from app.schemas.note import (
 from app.services.note_service import (
     create_note,
     get_notes,
-    # update_note,
-    # delete_note,
+    update_note,
+    delete_note,
 )
 
 router = APIRouter()
@@ -67,3 +67,52 @@ def list_notes(
         current_user,
         db,
     )
+
+
+@router.patch(
+    "/{note_id}",
+    response_model=NoteResponse,
+)
+def edit_note(
+    note_id: UUID,
+    payload: NoteUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        return update_note(
+            note_id,
+            payload,
+            current_user,
+            db,
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e),
+        )
+
+
+@router.delete(
+    "/{note_id}",
+)
+def remove_note(
+    note_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    try:
+        delete_note(
+            note_id,
+            current_user,
+            db,
+        )
+
+        return {"message": "Note deleted"}
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=404,
+            detail=str(e),
+        )
