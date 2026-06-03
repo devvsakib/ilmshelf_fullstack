@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.api.routes.user import router as user_router
 from app.api.routes.shelves import router as shelves_router
 from app.api.routes.books import router as books_router
-from app.api.routes.userBooks import router as user_books_router
+from app.api.routes.user_book import router as user_books_router
 from app.api.routes.auth import router as auth_router
 
 import app.models
