@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Text, Integer, Enum, ForeignKey
+from sqlalchemy import Column, String, Text, Integer, Enum, ForeignKey, Numeric
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 import uuid
@@ -20,6 +20,8 @@ class Book(BaseModel):
     isbn = Column(String(100), nullable=True)
     pages = Column(Integer, nullable=True)
     published_year = Column(Integer, nullable=True)
+    price = Column(Numeric(10, 2), nullable=True)
+    currency = Column(String(10), default="BDT")
     language = Column(String(50), nullable=True)
     visibility = Column(
         Enum(VisibilityEnum), default=VisibilityEnum.PUBLIC, nullable=False

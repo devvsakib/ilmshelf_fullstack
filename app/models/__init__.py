@@ -5,7 +5,7 @@ from app.models.author import Author
 from app.models.tag import Tag
 from app.models.shelf import Shelf
 
-from app.models.books import Book
+from app.models.book import Book
 
 from app.models.book_author import BookAuthor
 from app.models.book_tag import BookTag
