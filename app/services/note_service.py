@@ -1,0 +1,34 @@
+from sqlalchemy.orm import Session
+from app.models.note import Note
+from app.models.user_book import UserBook
+from app.models.user import User
+from app.schemas.note import NoteCreate, NoteUpdate
+
+
+def create_note(payload: NoteCreate, current_user: User, db: Session):
+    user_book = (
+        db.query(UserBook)
+        .filter(
+            UserBook.id == payload.user_book_id, UserBook.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if not user_book:
+        raise ValueError("Bok not found in your library. Please at it to your library")
+
+    note = Note(
+        user_book_id=payload.user_book_id, page=payload.page, content=payload.content
+    )
+
+    db.add(note)
+    db.commit()
+    db.refresh(note)
+
+    return note
+
+
+def get_notes(current_user: User, db: Session):
+    return (
+        db.query(Note).join(UserBook).filter(UserBook.user_id == current_user.id).all()
+    )
