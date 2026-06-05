@@ -17,7 +17,6 @@ def get_current_user(
 ):
     token = credentials.credentials
     payload = decode_access_token(token)
-    print(payload)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid Token!")
 

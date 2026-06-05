@@ -45,7 +45,6 @@ def create_user_book(payload: UserBookCreate, current_user: User, db: Session):
 
 
 def get_my_library(current_user: User, db: Session):
-    print("test")
     return db.query(UserBook).filter(UserBook.user_id == current_user.id).all()
 
 
