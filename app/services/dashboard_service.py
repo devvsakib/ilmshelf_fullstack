@@ -5,16 +5,34 @@ from app.models.note import Note
 from app.models.highlight import Highlight
 from app.models.book import Book
 from app.models.enums import ReadStatusEnum
+from datetime import datetime
 
 
 def get_dashboard(current_user, db):
     total_books = db.query(UserBook).filter(UserBook.user_id == current_user.id).count()
-
+    current_year = datetime.utcnow().year
     completed_books = (
         db.query(UserBook)
         .filter(
             UserBook.user_id == current_user.id,
             UserBook.read_status == ReadStatusEnum.COMPLETED,
+        )
+        .count()
+    )
+
+    completion_rate = completed_books / total_books * 100
+
+    avg_rating = (
+        db.query(func.avg(UserBook.rating))
+        .filter(UserBook.user_id == current_user.id)
+        .scalar()
+    )
+
+    books_this_year = (
+        db.query(UserBook)
+        .filter(
+            UserBook.user_id == current_user.id,
+            UserBook.reading_completed_at.isnot(None),
         )
         .count()
     )
@@ -57,6 +75,9 @@ def get_dashboard(current_user, db):
     return {
         "total_books": total_books,
         "completed_books": completed_books,
+        "completion_rate": completion_rate,
+        "avg_rating": avg_rating,
+        "books_this_year": books_this_year,
         "currently_reading": currently_reading,
         "wishlist_count": wishlist_count,
         "notes_count": notes_count,

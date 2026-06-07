@@ -6,22 +6,11 @@ from fastapi import HTTPException
 
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
-
 from app.models.user import User
-
+from app.schemas.book import BookCreate, BookResponse
+from app.db.database import get_db
 from app.core.dependencies import get_current_user
-
-from app.schemas.book import (
-    BookCreate,
-    BookResponse,
-)
-
-from app.services.book_service import (
-    create_book,
-    get_books,
-    get_book,
-)
+from app.services.book_service import create_book, get_books, get_book_details
 
 router = APIRouter()
 
@@ -49,25 +38,21 @@ def create_new_book(
         )
 
 
-@router.get(
-    "",
-    response_model=list[BookResponse],
-)
+@router.get("")
 def list_books(
     db: Session = Depends(get_db),
+    page: int = 1,
+    limit: int = 20,
 ):
-    return get_books(db)
+    return get_books(db, page, limit)
 
 
-@router.get(
-    "/{book_id}",
-    response_model=BookResponse,
-)
+@router.get("/{book_id}")
 def get_single_book(
     book_id: UUID,
     db: Session = Depends(get_db),
 ):
-    book = get_book(
+    book = get_book_details(
         book_id,
         db,
     )

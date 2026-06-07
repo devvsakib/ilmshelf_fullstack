@@ -1,7 +1,9 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.book import Book
 from app.models.user import User
+from app.models.user_book import UserBook
 from app.models.publisher import Publisher
 from app.schemas.book import BookCreate
 from app.utils.slug import generate_slug
@@ -69,9 +71,38 @@ def create_book(payload: BookCreate, current_user: User, db: Session):
     return book
 
 
-def get_books(db: Session):
-    return db.query(Book).all()
+def get_books(db: Session, page, limit):
+    offset = (page - 1) * limit
+    books = db.query(Book).offset(offset).limit(limit).all()
+
+    total = db.query(Book).count()
+
+    return {
+        "items": books,
+        "page": page,
+        "limit": limit,
+        "total": total,
+        "has_next": total > page * limit,
+    }
 
 
-def get_book(book_id, db: Session):
-    return db.query(Book).filter(Book.id == book_id).first()
+def get_book_details(book_id, db: Session):
+    book = db.query(Book).filter(Book.id == book_id).first()
+
+    if not book:
+        return None
+
+    total_readers = db.query(UserBook).filter(UserBook.book_id == book_id).count()
+
+    average_rating = (
+        db.query(func.avg(UserBook.rating)).filter(UserBook.book_id == book_id).scalar()
+    )
+
+    return {
+        "book": book,
+        "authors": [x.author for x in book.book_authors],
+        "tags": [x.tag for x in book.book_tags],
+        "publisher": book.publisher,
+        "total_readers": total_readers,
+        "average_rating": average_rating,
+    }
