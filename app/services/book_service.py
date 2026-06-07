@@ -1,7 +1,10 @@
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.book import Book
 from app.models.user import User
+from app.models.book_tag import BookTag
+from app.models.book_author import BookAuthor
 from app.models.publisher import Publisher
 from app.schemas.book import BookCreate
 from app.utils.slug import generate_slug
@@ -69,9 +72,46 @@ def create_book(payload: BookCreate, current_user: User, db: Session):
     return book
 
 
-def get_books(db: Session):
-    return db.query(Book).all()
+def get_books(
+    db: Session,
+    author_id=None,
+    tag_id=None,
+    language=None,
+    published_year=None,
+):
+    query = db.query(Book)
+
+    if author_id:
+        query = query.join(BookAuthor).filter(BookAuthor.author_id == author_id)
+
+    if tag_id:
+        query = query.join(BookTag).filter(BookTag.tag_id == tag_id)
+
+    if language:
+        query = query.filter(Book.language == language)
+
+    if published_year:
+        query = query.filter(Book.published_year == published_year)
+
+    return query.all()
 
 
 def get_book(book_id, db: Session):
     return db.query(Book).filter(Book.id == book_id).first()
+
+
+def search_books(
+    q: str,
+    db,
+):
+    return (
+        db.query(Book)
+        .filter(
+            or_(
+                Book.title_bn.ilike(f"%{q}%"),
+                Book.title_en.ilike(f"%{q}%"),
+                Book.title_ar.ilike(f"%{q}%"),
+            )
+        )
+        .all()
+    )
