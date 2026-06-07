@@ -4,6 +4,7 @@ from app.models.book import Book
 from app.models.user import User
 from app.models.shelf import Shelf
 from app.models.user_book import UserBook
+from app.models.reading_goal import ReadingGoal
 
 from app.models.enums import ReadStatusEnum
 
@@ -56,9 +57,11 @@ def update_user_book(
         .filter(UserBook.id == user_book_id, UserBook.user_id == current_user.id)
         .first()
     )
+    current_year = datetime.utcnow().year
 
     if not user_book:
         raise ValueError("Book not found.")
+
     if payload.shelf_id is not None:
         user_book.shelf_id = payload.shelf_id
     if payload.current_page is not None:
@@ -67,9 +70,12 @@ def update_user_book(
         user_book.rating = payload.rating
     if payload.is_private is not None:
         user_book.is_private = payload.is_private
-    if payload.purchase_datae is not None:
-        user_book.purchase_datae = payload.purchase_datae
+    if payload.purchase_date is not None:
+        user_book.purchase_date = payload.purchase_date
+
     if payload.read_status is not None:
+        # track prev status to prev dup counting
+        old_status = user_book.read_status
         user_book.read_status = payload.read_status
 
         if payload.read_status == ReadStatusEnum.IN_PROGRESS:
@@ -77,6 +83,34 @@ def update_user_book(
 
         if payload.read_status == ReadStatusEnum.COMPLETED:
             user_book.reading_completed_at = datetime.utcnow()
+
+            if old_status != ReadStatusEnum.COMPLETED:
+                goal = (
+                    db.query(ReadingGoal)
+                    .filter(
+                        ReadingGoal.user_id == current_user.id,
+                        ReadingGoal.year == current_year,
+                    )
+                    .first()
+                )
+
+                if goal:
+                    goal.completed_books += 1
+
+            if (
+                old_status == ReadStatusEnum.COMPLETED
+                and payload.read_status != ReadStatusEnum.COMPLETED
+            ):
+                goal = (
+                    db.query(ReadingGoal)
+                    .filter(
+                        ReadingGoal.user_id == current_user.id,
+                        ReadingGoal.year == current_year,
+                    )
+                    .first()
+                )
+                if goal and goal.completed_books > 0:
+                    goal.completed_books -= 1
 
     db.commit()
     db.refresh(user_book)

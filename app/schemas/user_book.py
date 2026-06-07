@@ -16,7 +16,7 @@ class UserBookUpdate(BaseModel):
     current_page: int | None = None
     rating: int | None = None
     is_private: bool | None = None
-    purchase_datae: date | None = None
+    purchase_date: date | None = None
 
 
 class UserBookResponse(BaseModel):
