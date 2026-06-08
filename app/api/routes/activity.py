@@ -7,8 +7,7 @@ from app.core.dependencies import get_current_user
 from app.schemas.activity import ActivityResponse
 from app.services.activity_service import get_user_activities
 
-router = APIRouter(prefix="/activities", tags=["Activities"])
-
+router = APIRouter()
 
 @router.get("", response_model=List[ActivityResponse])
 def fetch_my_activity_feed(

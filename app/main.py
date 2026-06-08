@@ -24,7 +24,7 @@ app.include_router(highlights_router, prefix="/highlights", tags=["Highlights"])
 app.include_router(wishlist_router, prefix="/wishlist", tags=["wishlist"])
 app.include_router(reading_goals_router, prefix="/reading-goals", tags=["Reading Goals"])
 app.include_router(dashboard_router, prefix="/dashboard", tags=["User Dashboard"])
-app.include_router(activity_router, prefix="/activity", tags=["User activity"])
+app.include_router(activity_router, prefix="/activities", tags=["User activities"])
 
 
 @app.get("/")
