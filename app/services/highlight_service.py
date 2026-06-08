@@ -2,8 +2,9 @@ from sqlalchemy.orm import Session
 from app.models.highlight import Highlight
 from app.models.user_book import UserBook
 from app.models.user import User
-
 from app.schemas.highlight import HighlightCreate, HighlightUpdate
+from app.services.activity_service import log_activity
+from app.models.enums import ActivityActionEnum
 
 
 def create_highlight(payload: HighlightCreate, current_user: User, db: Session):
@@ -26,6 +27,15 @@ def create_highlight(payload: HighlightCreate, current_user: User, db: Session):
     )
 
     db.add(highlight)
+    db.flush()
+
+    log_activity(
+        db=db,
+        user_id=current_user.id,
+        action=ActivityActionEnum.HIGHLIGHT_CREATED,
+        entity_type="Highlight",
+        entity_id=highlight.id,
+    )
 
     db.commit()
 

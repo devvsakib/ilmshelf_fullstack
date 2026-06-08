@@ -3,6 +3,8 @@ from app.models.note import Note
 from app.models.user_book import UserBook
 from app.models.user import User
 from app.schemas.note import NoteCreate, NoteUpdate
+from app.services.activity_service import log_activity
+from app.models.enums import ActivityActionEnum
 
 
 def create_note(payload: NoteCreate, current_user: User, db: Session):
@@ -22,6 +24,15 @@ def create_note(payload: NoteCreate, current_user: User, db: Session):
     )
 
     db.add(note)
+    db.flush()
+    
+    log_activity(
+        db=db, 
+        user_id=current_user.id, 
+        action=ActivityActionEnum.NOTE_CREATED, 
+        entity_type="Note", 
+        entity_id=note.id
+    )
     db.commit()
     db.refresh(note)
 
