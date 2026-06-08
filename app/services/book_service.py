@@ -7,6 +7,8 @@ from app.models.user_book import UserBook
 from app.models.publisher import Publisher
 from app.schemas.book import BookCreate
 from app.utils.slug import generate_slug
+from app.services.activity_service import log_activity
+from app.models.enums import ActivityActionEnum
 
 
 def create_book(payload: BookCreate, current_user: User, db: Session):
@@ -65,6 +67,15 @@ def create_book(payload: BookCreate, current_user: User, db: Session):
     )
 
     db.add(book)
+    db.flush()
+
+    log_activity(
+        db=db,
+        user_id=current_user.id,
+        action=ActivityActionEnum.BOOK_ADDED,
+        entity_type="Book",
+        entity_id=book.id,
+    )
     db.commit()
     db.refresh(book)
 

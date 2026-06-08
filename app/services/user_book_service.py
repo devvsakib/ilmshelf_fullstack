@@ -9,6 +9,8 @@ from app.models.reading_goal import ReadingGoal
 from app.models.enums import ReadStatusEnum
 
 from app.schemas.user_book import UserBookCreate, UserBookUpdate, UserBookResponse
+from app.models.enums import ReadStatusEnum, ActivityActionEnum
+from app.services.activity_service import log_activity
 
 
 # add to own lib
@@ -97,6 +99,13 @@ def update_user_book(
                 if goal:
                     goal.completed_books += 1
 
+                log_activity(
+                    db=db,
+                    user_id=current_user.id,
+                    action=ActivityActionEnum.BOOK_COMPLETED,
+                    entity_type="UserBook",
+                    entity_id=user_book.id,
+                )
             if (
                 old_status == ReadStatusEnum.COMPLETED
                 and payload.read_status != ReadStatusEnum.COMPLETED
@@ -111,6 +120,7 @@ def update_user_book(
                 )
                 if goal and goal.completed_books > 0:
                     goal.completed_books -= 1
+                user_book.reading_completed_at = None
 
     db.commit()
     db.refresh(user_book)
