@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Text, Integer, ForeignKey
+from sqlalchemy import Column, Text, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -15,5 +15,5 @@ class Highlight(BaseModel):
     page = Column(Integer, nullable=True)
 
     selected_text = Column(Text, nullable=False)
-
+    is_public = Column(Boolean, default=False)
     note = Column(Text, nullable=True)

@@ -10,6 +10,7 @@ from app.models.user import User
 from app.schemas.book import BookCreate, BookResponse
 from app.db.database import get_db
 from app.core.dependencies import get_current_user
+from app.core.admin import require_admin
 from app.services.book_service import create_book, get_books, get_book_details
 
 router = APIRouter()
@@ -64,3 +65,11 @@ def get_single_book(
         )
 
     return book
+
+
+@router.delete("/{book_id}")
+def delete_book(
+    book_id,
+    admin=Depends(require_admin),
+):
+    return "Not Admin"

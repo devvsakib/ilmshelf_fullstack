@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean, Enum
 from app.models.base_model import BaseModel
+from app.models.enums import RoleEnum
 from sqlalchemy.orm import relationship
 
 
@@ -13,6 +14,7 @@ class User(BaseModel):
     avatar_url = Column(String(500), nullable=True)
     bio = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True)
+    role = Column(Enum(RoleEnum), nullable=False, default=RoleEnum.USER)
     user_books = relationship("UserBook", back_populates="user")
     shelves = relationship("Shelf", back_populates="creator")
     wishlists = relationship("Wishlist", back_populates="user")

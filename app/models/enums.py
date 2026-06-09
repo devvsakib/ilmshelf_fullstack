@@ -32,3 +32,8 @@ class ActivityActionEnum(str, Enum):
     HIGHLIGHT_CREATED = "HIGHLIGHT_CREATED"
     BOOK_COMPLETED = "BOOK_COMPLETED"
     WISHLIST_ADDED = "WISHLIST_ADDED"
+
+
+class RoleEnum(str, Enum):
+    USER = "USER"
+    ADMIN = "ADMIN"

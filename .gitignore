@@ -13,6 +13,7 @@ __pycache__/
 *.pyd
 .pytest_cache/
 .mypy_cache/
+alembic
 
 # Databases (if you use local SQLite for testing)
 *.db
