@@ -11,7 +11,7 @@ from app.api.routes.reading_goals import router as reading_goals_router
 from app.api.routes.dashboard import router as dashboard_router
 from app.api.routes.activity import router as activity_router
 from app.api.routes.admin import router as admin_router
-
+from app.api.routes import authors
 import app.models
 
 app = FastAPI()
@@ -29,7 +29,11 @@ app.include_router(
 app.include_router(dashboard_router, prefix="/dashboard", tags=["User Dashboard"])
 app.include_router(activity_router, prefix="/activities", tags=["User activities"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin"])
-
+app.include_router(
+    authors.router,
+    prefix="/authors",
+    tags=["Authors"],
+)
 
 @app.get("/")
 def roots():
