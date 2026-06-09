@@ -15,6 +15,7 @@ from app.models.highlight import Highlight
 from app.models.enums import RoleEnum
 
 from app.core.admin import require_admin
+from app.services import admin_service
 
 router = APIRouter()
 
@@ -24,15 +25,7 @@ def dashboard(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    return {
-        "total_users": db.query(User).filter(User.deleted_at.is_(None)).count(),
-        "total_books": db.query(Book).filter(Book.deleted_at.is_(None)).count(),
-        "total_shelves": db.query(Shelf).filter(Shelf.deleted_at.is_(None)).count(),
-        "total_notes": db.query(Note).filter(Note.deleted_at.is_(None)).count(),
-        "total_highlights": db.query(Highlight)
-        .filter(Highlight.deleted_at.is_(None))
-        .count(),
-    }
+    return admin_service.get_dashboard(db)
 
 
 @router.get("/users")
@@ -65,27 +58,7 @@ def promote_user(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    user = (
-        db.query(User)
-        .filter(
-            User.id == user_id,
-            User.deleted_at.is_(None),
-        )
-        .first()
-    )
-
-    if not user:
-        return {"message": "User not found"}
-
-    user.role = RoleEnum.ADMIN
-
-    db.commit()
-    db.refresh(user)
-
-    return {
-        "message": "User promoted successfully",
-        "role": user.role,
-    }
+    return admin_service.promote_user(user_id, db)
 
 
 @router.patch("/users/{user_id}/demote")
@@ -94,27 +67,7 @@ def demote_user(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    user = (
-        db.query(User)
-        .filter(
-            User.id == user_id,
-            User.deleted_at.is_(None),
-        )
-        .first()
-    )
-
-    if not user:
-        return {"message": "User not found"}
-
-    user.role = RoleEnum.USER
-
-    db.commit()
-    db.refresh(user)
-
-    return {
-        "message": "User demoted successfully",
-        "role": user.role,
-    }
+    return admin_service.demote_user(user_id, db)
 
 
 @router.delete("/users/{user_id}")
@@ -123,25 +76,7 @@ def delete_user(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    user = (
-        db.query(User)
-        .filter(
-            User.id == user_id,
-            User.deleted_at.is_(None),
-        )
-        .first()
-    )
-
-    if not user:
-        return {"message": "User not found"}
-
-    user.deleted_at = datetime.utcnow()
-
-    db.commit()
-
-    return {
-        "message": "User deleted successfully",
-    }
+    return admin_service.delete_user(user_id, db)
 
 
 @router.delete("/books/{book_id}")
@@ -150,25 +85,7 @@ def delete_book(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    book = (
-        db.query(Book)
-        .filter(
-            Book.id == book_id,
-            Book.deleted_at.is_(None),
-        )
-        .first()
-    )
-
-    if not book:
-        return {"message": "Book not found"}
-
-    book.deleted_at = datetime.utcnow()
-
-    db.commit()
-
-    return {
-        "message": "Book deleted successfully",
-    }
+    return admin_service.delete_book(book_id, db)
 
 
 @router.delete("/shelves/{shelf_id}")
@@ -177,22 +94,40 @@ def delete_shelf(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    shelf = (
-        db.query(Shelf)
-        .filter(
-            Shelf.id == shelf_id,
-            Shelf.deleted_at.is_(None),
-        )
-        .first()
+    return admin_service.delete_shelf(shelf_id, db)
+
+
+@router.patch("/users/{user_id}/restore")
+def restore_user(
+    user_id: UUID,
+    admin=Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    return admin_service.restore_user(
+        user_id,
+        db,
     )
 
-    if not shelf:
-        return {"message": "Shelf not found"}
 
-    shelf.deleted_at = datetime.utcnow()
+@router.patch("/books/{book_id}/restore")
+def restore_book(
+    book_id: UUID,
+    admin=Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    return admin_service.restore_book(
+        book_id,
+        db,
+    )
 
-    db.commit()
 
-    return {
-        "message": "Shelf deleted successfully",
-    }
+@router.patch("/shelves/{shelf_id}/restore")
+def restore_shelf(
+    shelf_id: UUID,
+    admin=Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    return admin_service.restore_shelf(
+        shelf_id,
+        db,
+    )
