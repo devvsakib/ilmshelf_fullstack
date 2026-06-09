@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.book import Book
@@ -82,7 +82,15 @@ def create_book(payload: BookCreate, current_user: User, db: Session):
     return book
 
 
-def get_books(db: Session, page, limit):
+def get_books(
+    db: Session,
+    page,
+    limit,
+    author_id=None,
+    tag_id=None,
+    language=None,
+    published_year=None,
+):
     offset = (page - 1) * limit
     books = db.query(Book).offset(offset).limit(limit).all()
 
@@ -117,3 +125,20 @@ def get_book_details(book_id, db: Session):
         "total_readers": total_readers,
         "average_rating": average_rating,
     }
+
+
+def search_books(
+    q: str,
+    db: Session,
+):
+    return (
+        db.query(Book)
+        .filter(
+            or_(
+                Book.title_bn.ilike(f"%{q}%"),
+                Book.title_en.ilike(f"%{q}%"),
+                Book.title_ar.ilike(f"%{q}%"),
+            )
+        )
+        .all()
+    )
