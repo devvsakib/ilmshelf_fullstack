@@ -10,9 +10,18 @@ class PublisherCreate(BaseModel):
 
 class PublishUpdate(BaseModel):
     name = str
-    website = str
+    website = str | None = None
 
 
 class PublisherResponse(BaseModel):
     name = str
-    website = str
+    website = str | None = None
+    
+
+class PublisherResponse(BaseModel):
+    id: UUID
+    name: str
+    website: str | None = None
+    created_at: datetime
+    class Config:
+        from_attributes = True
