@@ -10,6 +10,7 @@ from app.api.routes.wishlist import router as wishlist_router
 from app.api.routes.reading_goals import router as reading_goals_router
 from app.api.routes.dashboard import router as dashboard_router
 from app.api.routes.activity import router as activity_router
+from app.api.routes.admin import router as admin_router
 
 import app.models
 
@@ -22,9 +23,12 @@ app.include_router(user_books_router, prefix="/user-books", tags=["User Books"])
 app.include_router(note_router, prefix="/notes", tags=["User Notes"])
 app.include_router(highlights_router, prefix="/highlights", tags=["Highlights"])
 app.include_router(wishlist_router, prefix="/wishlist", tags=["wishlist"])
-app.include_router(reading_goals_router, prefix="/reading-goals", tags=["Reading Goals"])
+app.include_router(
+    reading_goals_router, prefix="/reading-goals", tags=["Reading Goals"]
+)
 app.include_router(dashboard_router, prefix="/dashboard", tags=["User Dashboard"])
 app.include_router(activity_router, prefix="/activities", tags=["User activities"])
+app.include_router(admin_router, prefix="/admin", tags=["Admin"])
 
 
 @app.get("/")

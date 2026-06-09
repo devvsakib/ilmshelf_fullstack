@@ -24,5 +24,6 @@ class UserResponse(BaseModel):
     bio: str | None = None
     is_active: bool
     created_at: datetime
+    role: str
     class config:
         from_attributes = True
