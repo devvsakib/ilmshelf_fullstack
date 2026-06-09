@@ -1,4 +1,8 @@
-def paginate(query, page=1, limit=20):
+def paginate(
+    query,
+    page: int = 1,
+    limit: int = 20,
+):
     total = query.count()
 
     items = query.offset((page - 1) * limit).limit(limit).all()
@@ -8,5 +12,5 @@ def paginate(query, page=1, limit=20):
         "total": total,
         "page": page,
         "limit": limit,
-        "has_next": total > page * limit,
+        "pages": (total + limit - 1) // limit,
     }

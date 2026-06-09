@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime
 from fastapi import APIRouter
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
@@ -49,17 +49,12 @@ def get_books(
         query = query.filter(
             Book.deleted_at.is_(None),
             or_(
-                Book.title_bn.ilike(
-                    f"%{search}%"
-                ),
-                Book.title_en.ilike(
-                    f"%{search}%"
-                ),
-            )
+                Book.title_bn.ilike(f"%{search}%"),
+                Book.title_en.ilike(f"%{search}%"),
+            ),
         )
 
     return query.all()
-
 
 
 @router.get("/shelves")
@@ -85,6 +80,8 @@ def demote_user(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
+    if admin.id == user_id:
+        raise HTTPException(status_code=400, detail="You cannot demote yourself")
     return admin_service.demote_user(user_id, db)
 
 
@@ -94,6 +91,8 @@ def delete_user(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
+    if admin.id == user_id:
+        raise HTTPException(status_code=400, detail="You cannot delete yoursel")
     return admin_service.delete_user(user_id, db)
 
 
