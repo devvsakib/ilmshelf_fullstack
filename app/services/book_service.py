@@ -5,10 +5,13 @@ from app.models.book import Book
 from app.models.user import User
 from app.models.user_book import UserBook
 from app.models.publisher import Publisher
-from app.schemas.book import BookCreate
+from app.schemas.book import BookCreate, BookUpdate
 from app.utils.slug import generate_slug
 from app.services.activity_service import log_activity
 from app.models.enums import ActivityActionEnum
+from app.utils.responses import success_response
+from app.exceptions.not_found import NotFoundException
+from datetime import datetime
 
 
 def create_book(payload: BookCreate, current_user: User, db: Session):
@@ -92,21 +95,28 @@ def get_books(
     published_year=None,
 ):
     offset = (page - 1) * limit
-    books = db.query(Book).offset(offset).limit(limit).all()
+    books = (
+        db.query(Book)
+        .filter(Book.deleted_at.is_(None))
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
 
     total = db.query(Book).count()
 
-    return {
+    data = {
         "items": books,
         "page": page,
         "limit": limit,
         "total": total,
         "has_next": total > page * limit,
     }
+    return success_response(data)
 
 
 def get_book_details(book_id, db: Session):
-    book = db.query(Book).filter(Book.id == book_id).first()
+    book = db.query(Book).filter(Book.id == book_id, Book.deleted_at.is_(None)).first()
 
     if not book:
         return None
@@ -142,3 +152,38 @@ def search_books(
         )
         .all()
     )
+
+
+def update_book(
+    book_id,
+    payload: BookUpdate,
+    db: Session,
+):
+    book = db.query(Book).filter(Book.id == book_id).first()
+
+    if not book:
+        raise NotFoundException("Book not found")
+
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(book, key, value)
+
+    db.commit()
+    db.refresh(book)
+
+    return book
+
+
+def delete_book(
+    book_id,
+    db: Session,
+):
+    book = db.query(Book).filter(Book.id == book_id).first()
+
+    if not book:
+        raise NotFoundException("Book not found")
+
+    book.deleted_at = datetime.utcnow()
+
+    db.commit()
+
+    return {"message": "Book deleted"}

@@ -26,6 +26,18 @@ class BookCreate(BaseModel):
     book_metadata: dict | None = None
 
 
+class BookUpdate(BaseModel):
+    title_bn: str | None = None
+    title_en: str | None = None
+    description_bn: str | None = None
+    cover_url: str | None = None
+    pages: int | None = None
+    published_year: int | None = None
+    price: float | None = None
+    currency: str | None = None
+    language: str | None = None
+
+
 class BookResponse(BaseModel):
     id: UUID
 

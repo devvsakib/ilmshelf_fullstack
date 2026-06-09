@@ -7,11 +7,11 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from app.models.user import User
-from app.schemas.book import BookCreate, BookResponse
+from app.schemas.book import BookCreate, BookResponse, BookUpdate
 from app.db.database import get_db
 from app.core.dependencies import get_current_user
 from app.core.admin import require_admin
-from app.services.book_service import create_book, get_books, get_book_details
+from app.services import book_service
 
 router = APIRouter()
 
@@ -26,7 +26,7 @@ def create_new_book(
     db: Session = Depends(get_db),
 ):
     try:
-        return create_book(
+        return book_service.create_book(
             payload,
             current_user,
             db,
@@ -45,7 +45,7 @@ def list_books(
     page: int = 1,
     limit: int = 20,
 ):
-    return get_books(db, page, limit)
+    return book_service.get_books(db, page, limit)
 
 
 @router.get("/{book_id}")
@@ -53,7 +53,7 @@ def get_single_book(
     book_id: UUID,
     db: Session = Depends(get_db),
 ):
-    book = get_book_details(
+    book = book_service.get_book_details(
         book_id,
         db,
     )
@@ -67,9 +67,26 @@ def get_single_book(
     return book
 
 
+@router.patch("/{book_id}")
+def update_book(
+    book_id: UUID,
+    payload: BookUpdate,
+    db: Session = Depends(get_db),
+):
+    return book_service.update_book(
+        book_id,
+        payload,
+        db,
+    )
+
+
+
 @router.delete("/{book_id}")
 def delete_book(
-    book_id,
-    admin=Depends(require_admin),
+    book_id: UUID,
+    db: Session = Depends(get_db),
 ):
-    return "Not Admin"
+    return book_service.delete_book(
+        book_id,
+        db,
+    )
