@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter
 from fastapi import Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from app.db.database import get_db
 
@@ -40,8 +41,25 @@ def get_users(
 def get_books(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
+    search: str | None = None,
 ):
-    return db.query(Book).filter(Book.deleted_at.is_(None)).all()
+    query = db.query(Book)
+
+    if search:
+        query = query.filter(
+            Book.deleted_at.is_(None),
+            or_(
+                Book.title_bn.ilike(
+                    f"%{search}%"
+                ),
+                Book.title_en.ilike(
+                    f"%{search}%"
+                ),
+            )
+        )
+
+    return query.all()
+
 
 
 @router.get("/shelves")
