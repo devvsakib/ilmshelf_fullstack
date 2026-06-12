@@ -1,6 +1,6 @@
 from datetime import datetime
 from sqlalchemy.orm import Session
-
+from fastapi import HTTPException, status
 from app.models.tag import Tag
 from app.schemas.tag_schema import TagCreate, TagUpdate
 
@@ -11,6 +11,14 @@ def create_tag(
     payload: TagCreate,
     db: Session,
 ):
+    existing = db.query(Tag).filter(Tag.name == payload.name).first()
+
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This tag already in exist. Please search.",
+        )
+
     tag = Tag(
         name=payload.name,
         slug=generate_slug(payload.name),

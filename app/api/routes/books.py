@@ -12,6 +12,7 @@ from app.db.database import get_db
 from app.core.dependencies import get_current_user
 from app.core.admin import require_admin
 from app.services import book_service
+from app.schemas.book_details_schema import BookDetailsResponse
 
 router = APIRouter()
 
@@ -53,6 +54,28 @@ def get_single_book(
     book_id: UUID,
     db: Session = Depends(get_db),
 ):
+    book = book_service.get_single_book_details(
+        book_id,
+        db,
+    )
+
+    if not book:
+        raise HTTPException(
+            status_code=404,
+            detail="Book not found",
+        )
+
+    return book
+
+
+@router.get(
+    "/{book_id}/details",
+    response_model=BookDetailsResponse,
+)
+def get_book_details(
+    book_id: UUID,
+    db: Session = Depends(get_db),
+):
     book = book_service.get_book_details(
         book_id,
         db,
@@ -78,7 +101,6 @@ def update_book(
         payload,
         db,
     )
-
 
 
 @router.delete("/{book_id}")

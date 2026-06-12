@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.book import Book
 from app.models.user import User
-from app.models.user_book import UserBook
 from app.models.publisher import Publisher
 from app.schemas.book import BookCreate, BookUpdate
 from app.utils.slug import generate_slug
@@ -12,6 +11,12 @@ from app.models.enums import ActivityActionEnum
 from app.utils.responses import success_response
 from app.exceptions.not_found import NotFoundException
 from datetime import datetime
+from app.models.book_author import BookAuthor
+from app.models.book_tag import BookTag
+from app.models.author import Author
+from app.models.tag import Tag
+from app.models.wishlist import Wishlist
+from app.models.user_book import UserBook
 
 
 def create_book(payload: BookCreate, current_user: User, db: Session):
@@ -115,7 +120,7 @@ def get_books(
     return success_response(data)
 
 
-def get_book_details(book_id, db: Session):
+def get_single_book_details(book_id, db: Session):
     book = db.query(Book).filter(Book.id == book_id, Book.deleted_at.is_(None)).first()
 
     if not book:
@@ -134,6 +139,106 @@ def get_book_details(book_id, db: Session):
         "publisher": book.publisher,
         "total_readers": total_readers,
         "average_rating": average_rating,
+    }
+
+
+def get_book_details(
+    book_id,
+    db,
+):
+    book = (
+        db.query(Book)
+        .filter(
+            Book.id == book_id,
+            Book.deleted_at.is_(None),
+        )
+        .first()
+    )
+
+    if not book:
+        return None
+
+    authors = []
+    translators = []
+    editors = []
+
+    assignments = (
+        db.query(BookAuthor)
+        .join(
+            Author,
+            Author.id == BookAuthor.author_id,
+        )
+        .filter(
+            BookAuthor.book_id == book_id,
+        )
+        .all()
+    )
+
+    for item in assignments:
+        person = {
+            "id": item.author.id,
+            "name_bn": item.author.name_bn,
+            "name_en": item.author.name_en,
+            "name_ar": item.author.name_ar,
+        }
+
+        if item.role == "AUTHOR":
+            authors.append(person)
+
+        elif item.role == "TRANSLATOR":
+            translators.append(person)
+
+        elif item.role == "EDITOR":
+            editors.append(person)
+
+    tags = []
+
+    tag_assignments = (
+        db.query(BookTag)
+        .join(
+            Tag,
+            Tag.id == BookTag.tag_id,
+        )
+        .filter(
+            BookTag.book_id == book_id,
+        )
+        .all()
+    )
+
+    for item in tag_assignments:
+        tags.append(
+            {
+                "id": item.tag.id,
+                "name": item.tag.name,
+                "slug": item.tag.slug,
+            }
+        )
+
+    wishlist_count = db.query(Wishlist).filter(Wishlist.book_id == book_id).count()
+
+    reader_count = db.query(UserBook).filter(UserBook.book_id == book_id).count()
+
+    publisher = None
+
+    if book.publisher:
+        publisher = {
+            "id": book.publisher.id,
+            "name": book.publisher.name,
+        }
+
+    return {
+        "id": book.id,
+        "title_bn": book.title_bn,
+        "title_en": book.title_en,
+        "title_ar": book.title_ar,
+        "cover_url": book.cover_url,
+        "authors": authors,
+        "translators": translators,
+        "editors": editors,
+        "publisher": publisher,
+        "tags": tags,
+        "wishlist_count": wishlist_count,
+        "reader_count": reader_count,
     }
 
 
