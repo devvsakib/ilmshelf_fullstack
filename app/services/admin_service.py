@@ -5,7 +5,11 @@ from app.models.book import Book
 from app.models.shelf import Shelf
 from app.models.note import Note
 from app.models.highlight import Highlight
-
+from app.models.author import Author
+from app.models.tag import Tag
+from app.models.publisher import Publisher
+from app.models.wishlist import Wishlist
+from app.models.reading_goal import ReadingGoal
 from app.models.enums import RoleEnum
 
 from app.exceptions.not_found import NotFoundException
@@ -23,6 +27,36 @@ def get_dashboard(db: Session):
         .filter(Highlight.deleted_at.is_(None))
         .count(),
     }
+
+
+def get_dashboard_stats(
+    db: Session,
+):
+    return {
+        "total_users": (db.query(User).filter(User.deleted_at.is_(None)).count()),
+        "total_books": (db.query(Book).filter(Book.deleted_at.is_(None)).count()),
+        "total_authors": (db.query(Author).filter(Author.deleted_at.is_(None)).count()),
+        "total_publishers": (
+            db.query(Publisher).filter(Publisher.deleted_at.is_(None)).count()
+        ),
+        "total_tags": (db.query(Tag).filter(Tag.deleted_at.is_(None)).count()),
+        "total_shelves": (db.query(Shelf).filter(Shelf.deleted_at.is_(None)).count()),
+        "total_notes": db.query(Note).count(),
+        "total_highlights": db.query(Highlight).count(),
+        "total_wishlists": db.query(Wishlist).count(),
+        "total_reading_goals": db.query(ReadingGoal).count(),
+    }
+
+
+def get_users(
+    db: Session,
+):
+    return (
+        db.query(User)
+        .filter(User.deleted_at.is_(None))
+        .order_by(User.created_at.desc())
+        .all()
+    )
 
 
 def promote_user(

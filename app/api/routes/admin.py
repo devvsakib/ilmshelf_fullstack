@@ -17,6 +17,8 @@ from app.models.enums import RoleEnum
 
 from app.core.admin import require_admin
 from app.services import admin_service
+from app.schemas.admin_dashboard_schema import AdminDashboardResponse
+from app.schemas.admin_user_schema import AdminUserResponse, UpdateUserRoleRequest
 
 router = APIRouter()
 
@@ -29,12 +31,27 @@ def dashboard(
     return admin_service.get_dashboard(db)
 
 
-@router.get("/users")
+@router.get("/dashboard/stats")
+@router.get(
+    "/dashboard",
+    response_model=AdminDashboardResponse,
+)
+def dashboard(
+    admin=Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    return admin_service.get_dashboard_stats(db)
+
+
+@router.get(
+    "/users",
+    response_model=list[AdminUserResponse],
+)
 def get_users(
     admin=Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    return db.query(User).filter(User.deleted_at.is_(None)).all()
+    return admin_service.get_users(db)
 
 
 @router.get("/books")
