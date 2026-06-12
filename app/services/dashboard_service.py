@@ -11,6 +11,7 @@ from datetime import datetime
 def get_dashboard(current_user, db):
     total_books = db.query(UserBook).filter(UserBook.user_id == current_user.id).count()
     current_year = datetime.utcnow().year
+
     completed_books = (
         db.query(UserBook)
         .filter(
@@ -20,13 +21,17 @@ def get_dashboard(current_user, db):
         .count()
     )
 
-    completion_rate = completed_books / total_books * 100
+    # FIX: Guard against ZeroDivisionError for new users with empty libraries
+    if total_books > 0:
+        completion_rate = (completed_books / total_books) * 100
+    else:
+        completion_rate = 0.0
 
     avg_rating = (
         db.query(func.avg(UserBook.rating))
         .filter(UserBook.user_id == current_user.id)
         .scalar()
-    )
+    ) or 0.0  # Optional fallback if no books have ratings yet
 
     books_this_year = (
         db.query(UserBook)
@@ -75,8 +80,10 @@ def get_dashboard(current_user, db):
     return {
         "total_books": total_books,
         "completed_books": completed_books,
-        "completion_rate": completion_rate,
-        "avg_rating": avg_rating,
+        "completion_rate": round(
+            completion_rate, 2
+        ),  # Rounded for a cleaner API response
+        "avg_rating": round(avg_rating, 2) if avg_rating else 0.0,
         "books_this_year": books_this_year,
         "currently_reading": currently_reading,
         "wishlist_count": wishlist_count,

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes.user import router as user_router
+from app.api.routes.users import router as user_router
 from app.api.routes.shelves import router as shelves_router
 from app.api.routes.books import router as books_router
 from app.api.routes.user_book import router as user_books_router
@@ -16,6 +16,7 @@ from app.api.routes import book_authors
 from app.api.routes import publishers
 from app.api.routes import tags
 from app.api.routes import book_tags
+from app.api.routes import users
 
 import app.models
 
@@ -39,6 +40,7 @@ app.include_router(book_authors.router, tags=["Book Authors"])
 app.include_router(publishers.router, prefix="/publishers", tags=["Publishers"])
 app.include_router(tags.router, prefix="/tags", tags=["Tags"])
 app.include_router(book_tags.router, tags=["Book Tags"])
+app.include_router(users.router, prefix="/users", tags=["Users"])
 
 
 @app.get("/")
