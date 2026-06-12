@@ -17,6 +17,7 @@ from app.api.routes import publishers
 from app.api.routes import tags
 from app.api.routes import book_tags
 from app.api.routes import users
+from app.api.routes import discover
 
 import app.models
 
@@ -41,6 +42,7 @@ app.include_router(publishers.router, prefix="/publishers", tags=["Publishers"])
 app.include_router(tags.router, prefix="/tags", tags=["Tags"])
 app.include_router(book_tags.router, tags=["Book Tags"])
 app.include_router(users.router, prefix="/users", tags=["Users"])
+app.include_router(discover.router, prefix="/discover", tags=["Discover"])
 
 
 @app.get("/")
