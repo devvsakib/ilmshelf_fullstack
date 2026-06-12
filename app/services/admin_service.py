@@ -59,6 +59,31 @@ def get_users(
     )
 
 
+def update_user_role(
+    user_id,
+    role,
+    db: Session,
+):
+    user = (
+        db.query(User)
+        .filter(
+            User.id == user_id,
+            User.deleted_at.is_(None),
+        )
+        .first()
+    )
+
+    if not user:
+        return None
+
+    user.role = role
+
+    db.commit()
+    db.refresh(user)
+
+    return user
+
+
 def promote_user(
     user_id,
     db: Session,

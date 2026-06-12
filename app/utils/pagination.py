@@ -1,3 +1,6 @@
+from math import ceil
+
+
 def paginate(
     query,
     page: int = 1,
@@ -9,8 +12,8 @@ def paginate(
 
     return {
         "items": items,
-        "total": total,
         "page": page,
         "limit": limit,
-        "pages": (total + limit - 1) // limit,
+        "total": total,
+        "pages": ceil(total / limit) if total else 0,
     }
