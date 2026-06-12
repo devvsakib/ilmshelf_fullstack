@@ -13,6 +13,9 @@ from app.core.dependencies import get_current_user
 from app.core.admin import require_admin
 from app.services import book_service
 from app.schemas.book_details_schema import BookDetailsResponse
+from app.schemas.book_list_schema import BookListResponse
+from uuid import UUID
+from typing import Optional
 
 router = APIRouter()
 
@@ -40,13 +43,24 @@ def create_new_book(
         )
 
 
-@router.get("")
-def list_books(
-    db: Session = Depends(get_db),
+@router.get(
+    "",
+    response_model=BookListResponse,
+)
+def get_books(
+    search: Optional[str] = None,
+    publisher_id: Optional[UUID] = None,
     page: int = 1,
     limit: int = 20,
+    db: Session = Depends(get_db),
 ):
-    return book_service.get_books(db, page, limit)
+    return book_service.search_books(
+        db=db,
+        search=search,
+        publisher_id=publisher_id,
+        page=page,
+        limit=limit,
+    )
 
 
 @router.get("/{book_id}")

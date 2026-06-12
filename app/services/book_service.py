@@ -1,3 +1,4 @@
+from math import ceil
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -243,20 +244,40 @@ def get_book_details(
 
 
 def search_books(
-    q: str,
-    db: Session,
+    db,
+    search=None,
+    publisher_id=None,
+    page=1,
+    limit=20,
 ):
-    return (
-        db.query(Book)
-        .filter(
-            or_(
-                Book.title_bn.ilike(f"%{q}%"),
-                Book.title_en.ilike(f"%{q}%"),
-                Book.title_ar.ilike(f"%{q}%"),
-            )
+    query = db.query(Book).filter(Book.deleted_at.is_(None))
+
+    if search:
+        query = query.filter(
+            Book.title_bn.ilike(f"%{search}%")
+            | Book.title_en.ilike(f"%{search}%")
+            | Book.title_ar.ilike(f"%{search}%")
         )
+
+    if publisher_id:
+        query = query.filter(Book.publisher_id == publisher_id)
+
+    total = query.count()
+
+    items = (
+        query.order_by(Book.created_at.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
         .all()
     )
+
+    return {
+        "items": items,
+        "page": page,
+        "limit": limit,
+        "total": total,
+        "pages": ceil(total / limit) if total else 0,
+    }
 
 
 def update_book(
