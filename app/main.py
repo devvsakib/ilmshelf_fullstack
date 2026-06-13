@@ -19,6 +19,7 @@ from app.api.routes import book_tags
 from app.api.routes import users
 from app.api.routes import discover
 from app.api.routes import lending
+from app.api.routes import statistics
 
 import app.models
 
@@ -45,6 +46,7 @@ app.include_router(book_tags.router, tags=["Book Tags"])
 app.include_router(users.router, prefix="/users", tags=["Users"])
 app.include_router(discover.router, prefix="/discover", tags=["Discover"])
 app.include_router(lending.router, prefix="/lending", tags=["Lending"])
+app.include_router(statistics.router, prefix="/dashboard/statistics", tags=["statistics"])
 
 
 @app.get("/")

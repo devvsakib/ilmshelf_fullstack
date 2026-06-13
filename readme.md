@@ -44,29 +44,6 @@ Core Concepts:
 
 ---
 
-# Why PostgreSQL Instead of MongoDB
-
-PostgreSQL fits this application better because:
-
-* Many-to-many relationships
-* User ↔ Book ↔ Shelf relations
-* Search and indexing support
-* Analytics possibilities
-* Better consistency
-* Easier recommendation systems later
-* Better long-term scalability
-
-MongoDB would become difficult once:
-
-* books belong to multiple shelves
-* users have independent states
-* recommendation systems are added
-* community/social features grow
-
-Use PostgreSQL.
-
----
-
 # Core Database Entities
 
 ## Main Tables
@@ -542,8 +519,6 @@ Auto-update updated_at using SQLAlchemy.
 
 # Search Strategy
 
-Use PostgreSQL Full Text Search later.
-
 Searchable fields:
 
 * title_bn
@@ -560,7 +535,7 @@ Potential future:
 
 ---
 
-# Recommended FastAPI Folder Structure
+# Folder Structure
 
 ```txt
 app/
@@ -666,53 +641,6 @@ Store:
 
 * access token
 * refresh token
-
----
-
-# Migration Strategy from LocalStorage
-
-Old structure:
-
-```json
-{
-  "meta": {},
-  "user": {}
-}
-```
-
-Migration:
-
-## meta
-
-Move into:
-
-* books table
-
-## user
-
-Move into:
-
-* user_books table
-
----
-
-# Future AI Features Compatibility
-
-Architecture already supports:
-
-* AI summaries
-* semantic search
-* recommendation engine
-* OCR processing
-* Arabic explanation
-* scholar linking
-* quote extraction
-
-Because:
-
-* books are normalized
-* relationships are clean
-* metadata is structured
 
 ---
 
