@@ -22,3 +22,18 @@ class BookAuthorResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class BookAuthorDetailsResponse(BaseModel):
+    id: UUID
+
+    author_id: UUID
+
+    name_bn: str
+    name_en: str | None = None
+    name_ar: str | None = None
+
+    role: AuthorRoleEnum
+
+    class Config:
+        from_attributes = True

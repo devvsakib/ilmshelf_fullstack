@@ -14,12 +14,26 @@ def assign_author_to_book(
     payload: BookAuthorCreate,
     db: Session,
 ):
-    book = db.query(Book).filter(Book.id == book_id).first()
+    book = (
+        db.query(Book)
+        .filter(
+            Book.id == book_id,
+            Book.deleted_at.is_(None),
+        )
+        .first()
+    )
 
     if not book:
         return None
 
-    author = db.query(Author).filter(Author.id == payload.author_id).first()
+    author = (
+        db.query(Author)
+        .filter(
+            Author.id == payload.author_id,
+            Author.deleted_at.is_(None),
+        )
+        .first()
+    )
 
     if not author:
         return None
@@ -30,6 +44,7 @@ def assign_author_to_book(
             BookAuthor.book_id == book_id,
             BookAuthor.author_id == payload.author_id,
             BookAuthor.role == payload.role,
+            BookAuthor.deleted_at.is_(None),
         )
         .first()
     )
@@ -37,31 +52,66 @@ def assign_author_to_book(
     if existing:
         return existing
 
-    item = BookAuthor(
+    assignment = BookAuthor(
         book_id=book_id,
         author_id=payload.author_id,
         role=payload.role,
     )
 
-    db.add(item)
-    db.commit()
-    db.refresh(item)
+    db.add(assignment)
 
-    return item
+    db.commit()
+    db.refresh(assignment)
+
+    return assignment
 
 
 def get_book_authors(
     book_id,
     db: Session,
 ):
-    return db.query(BookAuthor).filter(BookAuthor.book_id == book_id).all()
+    records = (
+        db.query(BookAuthor)
+        .join(
+            Author,
+            Author.id == BookAuthor.author_id,
+        )
+        .filter(
+            BookAuthor.book_id == book_id,
+            BookAuthor.deleted_at.is_(None),
+        )
+        .all()
+    )
+
+    result = []
+
+    for item in records:
+        result.append(
+            {
+                "id": item.id,
+                "author_id": item.author.id,
+                "name_bn": item.author.name_bn,
+                "name_en": item.author.name_en,
+                "name_ar": item.author.name_ar,
+                "role": item.role,
+            }
+        )
+
+    return result
 
 
-def remove_book_author(
+def delete_book_author(
     book_author_id,
     db: Session,
 ):
-    item = db.query(BookAuthor).filter(BookAuthor.id == book_author_id).first()
+    item = (
+        db.query(BookAuthor)
+        .filter(
+            BookAuthor.id == book_author_id,
+            BookAuthor.deleted_at.is_(None),
+        )
+        .first()
+    )
 
     if not item:
         return None
@@ -70,4 +120,4 @@ def remove_book_author(
 
     db.commit()
 
-    return {"message": "Removed successfully"}
+    return {"message": "Book author removed successfully"}
