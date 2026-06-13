@@ -23,10 +23,12 @@ from app.api.routes import statistics
 from app.api.routes import reading_sessions
 from app.api.routes import search
 from app.api.routes import admin_restore
+from app.api.routes import health
 
 import app.models
 
 app = FastAPI()
+app.include_router(health.router, tags=["Health"])
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(user_router, prefix="/users", tags=["Users"])
 app.include_router(shelves_router, prefix="/shelves", tags=["Shelves"])
@@ -61,6 +63,7 @@ app.include_router(
     prefix="/admin",
     tags=["Admin Restore"],
 )
+
 
 @app.get("/")
 def roots():
