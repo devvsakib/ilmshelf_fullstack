@@ -22,6 +22,7 @@ from app.api.routes import lending
 from app.api.routes import statistics
 from app.api.routes import reading_sessions
 from app.api.routes import search
+from app.api.routes import admin_restore
 
 import app.models
 
@@ -55,7 +56,11 @@ app.include_router(
     reading_sessions.router, prefix="/reading-sessions", tags=["Reading Sessions"]
 )
 app.include_router(search.router, prefix="/search", tags=["Search"])
-
+app.include_router(
+    admin_restore.router,
+    prefix="/admin",
+    tags=["Admin Restore"],
+)
 
 @app.get("/")
 def roots():

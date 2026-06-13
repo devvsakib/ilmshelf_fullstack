@@ -39,5 +39,8 @@ def create_shelf(payload: ShelfCreate, current_user: User, db: Session):
     return shelf
 
 
+def get_public_shelves(db: Session):
+    return db.query(Shelf).filter(Shelf.is_public == True).all()
+
 def get_my_shelves(current_user: User, db: Session):
     return db.query(Shelf).filter(Shelf.created_by == current_user.id).all()
