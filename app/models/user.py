@@ -21,3 +21,4 @@ class User(BaseModel):
     reading_goals = relationship("ReadingGoal", back_populates="user")
     lending_records = relationship("LendingRecord", back_populates="user")
     owned_books = relationship("Book", back_populates="owner")
+    reading_sessions = relationship("ReadingSession", back_populates="user")

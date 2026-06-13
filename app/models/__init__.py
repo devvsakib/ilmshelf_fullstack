@@ -20,3 +20,4 @@ from app.models.wishlist import Wishlist
 from app.models.reading_goal import ReadingGoal
 from app.models.lending_record import LendingRecord
 from app.models.activity import Activity
+from app.models.reading_session import ReadingSession
