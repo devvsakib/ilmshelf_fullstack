@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
 from app.models.shelf import Shelf
-from app.core.dependencies import get_current_user
+from app.core.auth import get_current_user
 from app.models.enums import ShelfTypeEnum
 from app.schemas.shelf import ShelfCreate, ShelfResponse
 from app.services.shelf_service import create_shelf, get_my_shelves

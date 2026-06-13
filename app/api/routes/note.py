@@ -12,7 +12,7 @@ from app.db.database import get_db
 
 from app.models.user import User
 
-from app.core.dependencies import (
+from app.core.auth import (
     get_current_user,
 )
 

@@ -3,7 +3,7 @@ from fastapi import HTTPException
 
 from app.models.enums import RoleEnum
 
-from app.core.dependencies import get_current_user
+from app.core.auth import get_current_user
 
 
 def require_admin(

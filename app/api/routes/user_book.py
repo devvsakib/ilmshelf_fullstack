@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
-from app.core.dependencies import get_current_user
+from app.core.auth import get_current_user
 from app.schemas.user_book import UserBookCreate, UserBookResponse, UserBookUpdate
 from app.services.user_book_service import (
     create_user_book,

@@ -15,8 +15,9 @@ class LendingRecord(BaseModel):
 
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     book_id = Column(UUID(as_uuid=True), ForeignKey("books.id"), nullable=False)
-    borrowed_to = Column(String(255), nullable=False)
-    borrowed_at = Column(DateTime, nullable=False)
-    returned_at = Column(DateTime, nullable=True)
+    borrower_name = Column(String(255), nullable=False)
+    borrower_phone = Column(String(50), nullable=True)
+    due_date = Column(DateTime, nullable=True)
+    borrower_phone = Column(String(50), nullable=True)
     user = relationship("User", back_populates="lending_records")
     book = relationship("Book", back_populates="lending_records")

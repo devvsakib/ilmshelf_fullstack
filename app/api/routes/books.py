@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.book import BookCreate, BookResponse, BookUpdate
 from app.db.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.auth import get_current_user
 from app.core.admin import require_admin
 from app.services import book_service
 from app.schemas.book_details_schema import BookDetailsResponse

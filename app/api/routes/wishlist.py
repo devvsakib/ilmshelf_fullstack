@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.services.wishlist_service import create_wishlist, delete_wishlist, get_wishlist
-from app.core.dependencies import get_current_user
+from app.core.auth import get_current_user
 from app.models.user import User
 from app.models.wishlist import Wishlist
 from app.schemas.wishlist import WishlistResponse, WishlistCreate
