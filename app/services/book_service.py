@@ -8,7 +8,7 @@ from app.models.publisher import Publisher
 from app.schemas.book import BookCreate, BookUpdate
 from app.utils.slug import generate_slug
 from app.services.activity_service import log_activity
-from app.models.enums import ActivityActionEnum
+from app.models.enums import ActivityActionEnum, AuthorRoleEnum
 from app.utils.responses import success_response
 from app.exceptions.not_found import NotFoundException
 from datetime import datetime
@@ -183,13 +183,13 @@ def get_book_details(
             "name_ar": item.author.name_ar,
         }
 
-        if item.role == "AUTHOR":
+        if item.role == AuthorRoleEnum.WRITER:
             authors.append(person)
 
-        elif item.role == "TRANSLATOR":
+        elif item.role == AuthorRoleEnum.TRANSLATOR:
             translators.append(person)
 
-        elif item.role == "EDITOR":
+        elif item.role == AuthorRoleEnum.EDITOR:
             editors.append(person)
 
     tags = []
