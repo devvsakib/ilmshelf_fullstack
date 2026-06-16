@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
@@ -25,5 +25,16 @@ class UserResponse(BaseModel):
     is_active: bool
     created_at: datetime
     role: str
-    class config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UpdateProfileRequest(BaseModel):
+    full_name: str | None = None
+    avatar_url: str | None = None
+    bio: str | None = None
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str

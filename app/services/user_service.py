@@ -1,12 +1,13 @@
+from fastapi import HTTPException
 from app.models.user import User
 from app.models.user_book import UserBook
 from app.models.shelf import Shelf
 
+# Assuming your hashing utilities reside here. Adjust path if necessary!
+from app.core.security import verify_password, hash_password
 
-def get_public_profile(
-    user_id,
-    db,
-):
+
+def get_public_profile(user_id, db):
     user = (
         db.query(User)
         .filter(
@@ -47,3 +48,29 @@ def get_public_profile(
         "completed_books": completed_books,
         "shelves_count": shelves_count,
     }
+
+
+def get_me(current_user):
+    return current_user
+
+
+def update_me(current_user, payload, db):
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(current_user, key, value)
+
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+def change_password(current_user, payload, db):
+    if not verify_password(payload.current_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=400,
+            detail="Current password incorrect",
+        )
+
+    current_user.password_hash = hash_password(payload.new_password)
+    db.commit()
+
+    return {"message": "Password changed successfully"}
